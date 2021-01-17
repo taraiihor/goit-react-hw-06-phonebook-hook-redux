@@ -1,11 +1,15 @@
 import { useState } from 'react';
-import { connect } from 'react-redux';
+// import { connect } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { getContact } from '../redux/contact/contact-selector';
 import { addContact } from '../redux/contact/contact-action';
 import './ContactForm.css';
 
-function ContactForm({ onSubmit, contact }) {
+function ContactForm() {
   const [name, setName] = useState('');
   const [number, setNumber] = useState('');
+  const contacts = useSelector(getContact);
+  const dispatch = useDispatch();
 
   const handleChange = ({ target }) => {
     const { name, value } = target;
@@ -22,15 +26,16 @@ function ContactForm({ onSubmit, contact }) {
   };
   const handleSubmit = event => {
     event.preventDefault();
-    const auditContact = contact.find(
-      item => item.name.toLowerCase() === name.toLowerCase(),
+    const auditContact = contacts.find(
+      contact => contact.name.toLowerCase() === name.toLowerCase(),
     );
     if (auditContact) {
       alert(`Контакт ${name} з таким ім’ям вже є.`);
       reset();
       return;
     }
-    onSubmit(name, number);
+    dispatch(addContact(name, number));
+    // onSubmit(name, number);
     reset();
   };
   const reset = () => {
@@ -67,11 +72,12 @@ function ContactForm({ onSubmit, contact }) {
     </form>
   );
 }
-const mapStateToProps = ({ contacts: { contact } }) => ({
-  contact,
-});
-const mapDispatchToProps = dispatch => ({
-  onSubmit: (name, number) => dispatch(addContact(name, number)),
-});
+export default ContactForm;
+// const mapStateToProps = ({ contacts: { contact } }) => ({
+//   contact,
+// });
+// const mapDispatchToProps = dispatch => ({
+//   onSubmit: (name, number) => dispatch(addContact(name, number)),
+// });
 
-export default connect(mapStateToProps, mapDispatchToProps)(ContactForm);
+// export default connect(mapDispatchToProps)(ContactForm);
