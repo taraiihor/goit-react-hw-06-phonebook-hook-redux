@@ -1,7 +1,9 @@
 import { useState } from 'react';
+import { connect } from 'react-redux';
+import { addContact } from '../redux/contact/contact-action';
 import './ContactForm.css';
 
-function ContactForm({ onSubmit }) {
+function ContactForm({ onSubmit, contact }) {
   const [name, setName] = useState('');
   const [number, setNumber] = useState('');
 
@@ -20,6 +22,14 @@ function ContactForm({ onSubmit }) {
   };
   const handleSubmit = event => {
     event.preventDefault();
+    const auditContact = contact.find(
+      item => item.name.toLowerCase() === name.toLowerCase(),
+    );
+    if (auditContact) {
+      alert(`Контакт ${name} з таким ім’ям вже є.`);
+      reset();
+      return;
+    }
     onSubmit(name, number);
     reset();
   };
@@ -57,28 +67,11 @@ function ContactForm({ onSubmit }) {
     </form>
   );
 }
+const mapStateToProps = ({ contacts: { contact } }) => ({
+  contact,
+});
+const mapDispatchToProps = dispatch => ({
+  onSubmit: (name, number) => dispatch(addContact(name, number)),
+});
 
-// class ContactForm extends Component {
-//   state = {
-//     name: '',
-//     number: '',
-//   };
-
-//   handleChange = event => {
-//     const { name, value } = event.currentTarget;
-//     this.setState({ [name]: value });
-//   };
-//   handleSubmit = event => {
-//     event.preventDefault();
-//     const { name, number } = this.state;
-//     this.props.onSubmit(name, number);
-//     this.reset();
-//   };
-//   reset = () => {
-//     this.setState({ name: '', number: '' });
-//   };
-//   render() {
-//     const { name, number } = this.state;
-//   }
-// }
-export default ContactForm;
+export default connect(mapStateToProps, mapDispatchToProps)(ContactForm);
